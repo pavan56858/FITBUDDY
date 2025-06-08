@@ -11,623 +11,670 @@
         <div class="header">
             <h1>🏋️ FitBuddy</h1>
             <p>Your Personal AI Fitness Coach & Motivation Companion</p>
+            <button id="logoutBtn" class="control-btn" style="display: none;" onclick="handleLogout()">Logout</button>
         </div>
 
-        <div class="ai-coach card">
-            <div class="coach-avatar" id="coachAvatar">🤖</div>
-            <h2>Hi! I'm your AI Fitness Coach</h2>
-            <p id="coachMessage">Ready to crush your fitness goals today? Let's get started!</p>
-        </div>
-
-        <div class="main-content">
-            <div class="card">
-                <h3>🎯 Today's Workout</h3>
-                <div class="workout-card" id="todayWorkout">
-                    <h4>Full Body Strength</h4>
-                    <div class="exercise-list">
-                        <div class="exercise-item">Push-ups - 3 sets x 12 reps</div>
-                        <div class="exercise-item">Squats - 3 sets x 15 reps</div>
-                        <div class="exercise-item">Plank - 3 sets x 30 seconds</div>
-                        <div class="exercise-item">Burpees - 3 sets x 8 reps</div>
-                    </div>
-                    <button class="control-btn" onclick="startWorkout()">Start Workout</button>
+        <!-- Auth Forms -->
+        <div id="authForms" class="card auth-section">
+            <div id="loginForm" class="auth-form">
+                <h3>Login</h3>
+                <div class="form-group">
+                    <input type="text" id="loginUsername" placeholder="Username" required>
                 </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                </div>
+                <button class="control-btn" onclick="handleLogin()">Login</button>
+                <p>Don't have an account? <a href="#" onclick="toggleAuthForms()">Register</a></p>
             </div>
 
-            <div class="card">
-                <h3>📊 Progress Tracking</h3>
-                <div class="stats">
-                    <div class="stat-item">
-                        <div class="stat-value" id="workoutsCompleted">7</div>
-                        <div>Workouts This Week</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="caloriesBurned">1,240</div>
-                        <div>Calories Burned</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="streakDays">12</div>
-                        <div>Day Streak</div>
-                    </div>
+            <div id="registerForm" class="auth-form" style="display: none;">
+                <h3>Register</h3>
+                <div class="form-group">
+                    <input type="text" id="registerUsername" placeholder="Username" required 
+                           onkeyup="checkUsernameAvailability()" 
+                           onblur="checkUsernameAvailability()">
                 </div>
-                
-                <h4>Weekly Goal Progress</h4>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="weeklyProgress" style="width: 70%"></div>
+                <div class="form-group">
+                    <input type="password" id="registerPassword" placeholder="Password" required>
                 </div>
-                <p>70% Complete - 3 more workouts to go!</p>
+                <button class="control-btn" onclick="handleRegister()">Register</button>
+                <p>Already have an account? <a href="#" onclick="toggleAuthForms()">Login</a></p>
             </div>
         </div>
 
-        <div class="card nutrition-section">
-            <h3>🥗 Nutrition Guide</h3>
-            <div class="nutrition-tabs">
-                <button class="nutrition-tab active" onclick="showNutritionPlan('balanced')">Balanced</button>
-                <button class="nutrition-tab" onclick="showNutritionPlan('highProtein')">High Protein</button>
-                <button class="nutrition-tab" onclick="showNutritionPlan('vegetarian')">Vegetarian</button>
-            </div>
-            
-            <div id="nutritionPlan" class="nutrition-plan">
-                <!-- Content will be dynamically populated -->
+        <div id="mainContent" style="display: none;">
+            <div class="ai-coach card">
+                <div class="coach-avatar" id="coachAvatar">🤖</div>
+                <h2>Welcome, <span id="userGreeting">User</span>!</h2>
+                <p id="coachMessage">Ready to crush your fitness goals today? Let's get started!</p>
             </div>
 
-            <div class="nutrition-tips">
-                <h4>💡 Nutrition Tips</h4>
-                <div class="tips-container" id="nutritionTips">
-                    <!-- Tips will be dynamically populated -->
-                </div>
-            </div>
-
-            <div class="workout-nutrition">
-                <div class="pre-workout">
-                    <h4>🍎 Pre-Workout Snacks</h4>
-                    <ul id="preWorkoutSnacks">
-                        <!-- Pre-workout snacks will be dynamically populated -->
-                    </ul>
-                </div>
-                <div class="post-workout">
-                    <h4>🥤 Post-Workout Snacks</h4>
-                    <ul id="postWorkoutSnacks">
-                        <!-- Post-workout snacks will be dynamically populated -->
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>⏱️ Workout Timer</h3>
-            <div class="timer-container">
-                <div class="timer" id="workoutTimer">00:00</div>
-                <div class="timer-mode" id="timerMode">Challenge Timer</div>
-                <div class="control-buttons">
-                    <button class="control-btn" id="startTimer">▶️ Start</button>
-                    <button class="control-btn" id="pauseTimer">⏸️ Pause</button>
-                    <button class="control-btn" id="resetTimer">🔄 Reset</button>
-                </div>
-                <div class="timer-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="timerProgress" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card challenge-system">
-            <h3>🏆 Workout Challenge System</h3>
-            <div class="challenge-container">
-                <div class="challenge-grid">
-                    <div class="current-challenge">
-                        <h4>🔥 Today's Challenge</h4>
-                        <div class="challenge-card" id="dailyChallenge">
-                            <div class="challenge-header">
-                                <div class="challenge-title">30-Minute HIIT Blast</div>
-                                <div class="challenge-badge">NEW</div>
+            <div class="main-content">
+                <div class="card">
+                    <h3>🎯 Today's Workout</h3>
+                    <div class="workout-card" id="todayWorkout">
+                        <div id="workoutSelection" class="workout-selection">
+                            <h4>Select Your Workout</h4>
+                            <div class="plan-options">
+                                <button class="plan-btn" onclick="selectWorkoutPlan('strength')">💪 Strength</button>
+                                <button class="plan-btn" onclick="selectWorkoutPlan('cardio')">🏃 Cardio</button>
+                                <button class="plan-btn" onclick="selectWorkoutPlan('yoga')">🧘 Yoga</button>
+                                <button class="plan-btn" onclick="selectWorkoutPlan('hiit')">⚡ HIIT</button>
                             </div>
-                            <div class="challenge-description">Complete 4 rounds of high-intensity exercises</div>
-                            <div class="challenge-rewards">
-                                <div class="reward-item">
-                                    <span class="reward-icon">🎯</span>
-                                    <span class="reward-value">100 Points</span>
-                                </div>
-                                <div class="reward-item">
-                                    <span class="reward-icon">⭐</span>
-                                    <span class="reward-value">+20 Streak</span>
-                                </div>
+                        </div>
+
+                        <div id="workoutDetails" class="workout-details" style="display: none;">
+                            <h4 id="selectedWorkoutName">Today's Workout</h4>
+                            <div id="workoutExercises" class="exercise-list">
+                                <!-- Exercises will be populated here -->
                             </div>
-                            <button class="control-btn challenge-btn" onclick="startChallenge()">Accept Challenge</button>
+                            <div class="workout-controls">
+                                <button class="control-btn" id="startWorkoutBtn" onclick="startWorkout()">Start Workout</button>
+                                <button class="control-btn success-btn" id="completeWorkoutBtn" onclick="completeWorkout()" style="display: none;">Complete Workout</button>
+                            </div>
+                            <div id="workoutStatus" class="workout-status"></div>
+                            <div id="nextWorkoutTime" class="next-workout-time"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Your Progress</h3>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="workoutsCompleted">0</div>
+                            <div>Workouts Completed</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="caloriesBurned">0</div>
+                            <div>Calories Burned</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="streakDays">0</div>
+                            <div>Day Streak</div>
                         </div>
                     </div>
                     
-                    <div class="challenge-stats">
-                        <h4>Your Progress</h4>
-                        <div class="stats-grid">
-                            <div class="stat-box">
-                                <div class="stat-icon">🏆</div>
-                                <div class="stat-value" id="totalPoints">1,250</div>
-                                <div class="stat-label">Total Points</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-icon">🔥</div>
-                                <div class="stat-value" id="challengeStreak">5</div>
-                                <div class="stat-label">Day Streak</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-icon">👑</div>
-                                <div class="stat-value" id="rank">#42</div>
-                                <div class="stat-label">Global Rank</div>
-                            </div>
-                        </div>
+                    <h4>Weekly Goal Progress</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="weeklyProgress" style="width: 0%"></div>
+                    </div>
+                    <p>0% Complete - Let's start your fitness journey!</p>
+                </div>
+            </div>
+
+            <div class="card nutrition-section">
+                <h3>🥗 Nutrition Guide</h3>
+                <div class="nutrition-tabs">
+                    <button class="nutrition-tab active" onclick="showNutritionPlan('balanced')">Balanced</button>
+                    <button class="nutrition-tab" onclick="showNutritionPlan('highProtein')">High Protein</button>
+                    <button class="nutrition-tab" onclick="showNutritionPlan('vegetarian')">Vegetarian</button>
+                </div>
+                
+                <div id="nutritionPlan" class="nutrition-plan">
+                    <!-- Content will be dynamically populated -->
+                </div>
+
+                <div class="nutrition-tips">
+                    <h4>💡 Nutrition Tips</h4>
+                    <div class="tips-container" id="nutritionTips">
+                        <!-- Tips will be dynamically populated -->
                     </div>
                 </div>
 
-                <div class="upcoming-challenges">
-                    <h4>📅 Upcoming Challenges</h4>
-                    <div class="challenge-list" id="upcomingChallenges">
-                        <!-- Will be populated dynamically -->
+                <div class="workout-nutrition">
+                    <div class="pre-workout">
+                        <h4>🍎 Pre-Workout Snacks</h4>
+                        <ul id="preWorkoutSnacks">
+                            <!-- Pre-workout snacks will be dynamically populated -->
+                        </ul>
+                    </div>
+                    <div class="post-workout">
+                        <h4>🥤 Post-Workout Snacks</h4>
+                        <ul id="postWorkoutSnacks">
+                            <!-- Post-workout snacks will be dynamically populated -->
+                        </ul>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <style>
-            :root {
-                --primary-gradient: linear-gradient(135deg, #2c3e50, #3498db);
-                --secondary-gradient: linear-gradient(135deg, #2c3e50, #2980b9);
-                --card-bg: rgba(255, 255, 255, 0.1);
-                --card-border: rgba(255, 255, 255, 0.2);
-                --text-primary: #fff;
-                --text-secondary: rgba(255, 255, 255, 0.8);
-                --accent-color: #3498db;
-                --hover-color: #2980b9;
-                --success-color: #2ecc71;
-                --danger-color: #e74c3c;
-                --shadow-color: rgba(44, 62, 80, 0.2);
-                --card-radius: 15px;
-                --transition: all 0.3s ease;
-            }
+            <div class="card">
+                <h3>⏱️ Workout Timer</h3>
+                <div class="timer-container">
+                    <div class="timer" id="workoutTimer">00:00</div>
+                    <div class="timer-mode" id="timerMode">Challenge Timer</div>
+                    <div class="control-buttons">
+                        <button class="control-btn" id="startTimer">▶️ Start</button>
+                        <button class="control-btn" id="pauseTimer">⏸️ Pause</button>
+                        <button class="control-btn" id="resetTimer">🔄 Reset</button>
+                    </div>
+                    <div class="timer-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="timerProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            body {
-                background: var(--primary-gradient);
-                color: var(--text-primary);
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                min-height: 100vh;
-            }
+            <div class="card challenge-system">
+                <h3>🏆 Workout Challenge System</h3>
+                <div class="challenge-container">
+                    <div class="challenge-grid">
+                        <div class="current-challenge">
+                            <h4>🔥 Today's Challenge</h4>
+                            <div class="challenge-card" id="dailyChallenge">
+                                <div class="challenge-header">
+                                    <div class="challenge-title">30-Minute HIIT Blast</div>
+                                    <div class="challenge-badge">NEW</div>
+                                </div>
+                                <div class="challenge-description">Complete 4 rounds of high-intensity exercises</div>
+                                <div class="challenge-rewards">
+                                    <div class="reward-item">
+                                        <span class="reward-icon">🎯</span>
+                                        <span class="reward-value">100 Points</span>
+                                    </div>
+                                    <div class="reward-item">
+                                        <span class="reward-icon">⭐</span>
+                                        <span class="reward-value">+20 Streak</span>
+                                    </div>
+                                </div>
+                                <button class="control-btn challenge-btn" onclick="startChallenge()">Accept Challenge</button>
+                            </div>
+                        </div>
+                        
+                        <div class="challenge-stats">
+                            <h4>Your Progress</h4>
+                            <div class="stats-grid">
+                                <div class="stat-box">
+                                    <div class="stat-icon">🏆</div>
+                                    <div class="stat-value" id="totalPoints">1,250</div>
+                                    <div class="stat-label">Total Points</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-icon">🔥</div>
+                                    <div class="stat-value" id="challengeStreak">5</div>
+                                    <div class="stat-label">Day Streak</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-icon">👑</div>
+                                    <div class="stat-value" id="rank">#42</div>
+                                    <div class="stat-label">Global Rank</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            .container {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 2rem;
-            }
+                    <div class="upcoming-challenges">
+                        <h4>📅 Upcoming Challenges</h4>
+                        <div class="challenge-list" id="upcomingChallenges">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            .header {
-                text-align: center;
-                margin-bottom: 3rem;
-                animation: fadeInDown 1s ease-out;
-            }
-
-            .header h1 {
-                font-size: 3rem;
-                margin-bottom: 1rem;
-                background: linear-gradient(to right, #00b4db, #0083b0);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                text-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            }
-
-            .card {
-                background: var(--card-bg);
-                backdrop-filter: blur(10px);
-                border: 1px solid var(--card-border);
-                border-radius: var(--card-radius);
-                padding: 2rem;
-                margin-bottom: 2rem;
-                box-shadow: 0 8px 32px var(--shadow-color);
-                transition: var(--transition);
-            }
-
-            .card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-            }
-
-            .card h3 {
-                font-size: 1.8rem;
-                margin-bottom: 1.5rem;
-                color: var(--text-primary);
-                text-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            }
-
-            /* AI Coach Section */
-            .ai-coach {
-                text-align: center;
-                background: var(--secondary-gradient);
-            }
-
-            .coach-avatar {
-                font-size: 4rem;
-                margin-bottom: 1rem;
-                animation: bounce 2s infinite;
-                text-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            }
-
-            /* Workout Section */
-            .workout-section {
-                margin-top: 3rem;
-                background: var(--secondary-gradient);
-            }
-
-            .workout-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 1.5rem;
-            }
-
-            .workout-card {
-                background: var(--card-bg);
-                border-radius: var(--card-radius);
-                padding: 1.5rem;
-                text-align: center;
-                cursor: pointer;
-                transition: var(--transition);
-                border: 1px solid var(--card-border);
-            }
-
-            .workout-card:hover {
-                transform: translateY(-5px);
-                background: var(--secondary-gradient);
-                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            }
-
-            /* Timer Section */
-            .timer-container {
-                text-align: center;
-                padding: 2rem;
-                background: var(--secondary-gradient);
-            }
-
-            .timer {
-                font-size: 4rem;
-                font-weight: bold;
-                margin: 1rem 0;
-                text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-                background: linear-gradient(to right, #00b4db, #0083b0);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-            }
-
-            .timer-mode {
-                font-size: 1.2rem;
-                color: var(--text-secondary);
-                margin-bottom: 1rem;
-            }
-
-            .control-buttons {
-                display: flex;
-                gap: 1rem;
-                justify-content: center;
-                margin: 1.5rem 0;
-            }
-
-            .control-btn {
-                padding: 0.8rem 1.5rem;
-                border: none;
-                border-radius: 8px;
-                background: var(--accent-color);
-                color: var(--text-primary);
-                cursor: pointer;
-                transition: var(--transition);
-                font-size: 1rem;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            }
-
-            .control-btn:hover {
-                background: var(--hover-color);
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-            }
-
-            /* Progress Bars */
-            .progress-bar {
-                background: var(--accent-color);
-                border-radius: 10px;
-                height: 10px;
-                overflow: hidden;
-                margin: 1rem 0;
-                box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
-            }
-
-            .progress-fill {
-                background: var(--success-color);
-                height: 100%;
-                transition: width 0.3s ease;
-            }
-
-            /* Nutrition Section */
-            .nutrition-section {
-                background: var(--secondary-gradient);
-            }
-
-            .nutrition-tabs {
-                display: flex;
-                gap: 1rem;
-                margin-bottom: 1.5rem;
-            }
-
-            .nutrition-tab {
-                padding: 0.8rem 1.5rem;
-                border: none;
-                border-radius: 8px;
-                background: var(--card-bg);
-                color: var(--text-primary);
-                cursor: pointer;
-                transition: var(--transition);
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            }
-
-            .nutrition-tab.active {
-                background: var(--accent-color);
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            }
-
-            .nutrition-tab:hover {
-                background: var(--hover-color);
-                transform: translateY(-2px);
-            }
-
-            /* Challenge System Specific Styles */
-            .challenge-system {
-                background: var(--primary-gradient);
-                color: white;
-                padding: 2rem;
-                border-radius: 15px;
-                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            }
-
-            .challenge-container {
-                display: flex;
-                flex-direction: column;
-                gap: 2rem;
-            }
-
-            .challenge-grid {
-                display: grid;
-                grid-template-columns: 1.5fr 1fr;
-                gap: 2rem;
-            }
-
-            .challenge-card {
-                background: var(--card-bg);
-                border-radius: 12px;
-                padding: 1.5rem;
-                backdrop-filter: blur(10px);
-                border: 1px solid var(--card-border);
-                transition: transform 0.3s ease;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            }
-
-            .challenge-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-            }
-
-            .challenge-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 1rem;
-            }
-
-            .challenge-title {
-                font-size: 1.5rem;
-                font-weight: bold;
-                color: #fff;
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            }
-
-            .challenge-badge {
-                background: var(--danger-color);
-                padding: 0.3rem 0.8rem;
-                border-radius: 20px;
-                font-size: 0.8rem;
-                font-weight: bold;
-                box-shadow: 0 4px 15px rgba(26, 42, 108, 0.3);
-            }
-
-            .challenge-description {
-                color: rgba(255, 255, 255, 0.9);
-                margin-bottom: 1.5rem;
-            }
-
-            .challenge-rewards {
-                display: flex;
-                gap: 1rem;
-                margin-bottom: 1.5rem;
-            }
-
-            .reward-item {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                background: var(--card-bg);
-                padding: 0.5rem 1rem;
-                border-radius: 20px;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-                border: 1px solid var(--card-border);
-            }
-
-            .reward-icon {
-                font-size: 1.2rem;
-            }
-
-            .challenge-btn {
-                width: 100%;
-                padding: 1rem;
-                font-size: 1.1rem;
-                background: var(--success-color);
-                border: none;
-                border-radius: 8px;
-                color: white;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 15px rgba(26, 42, 108, 0.3);
-            }
-
-            .challenge-btn:hover {
-                background: var(--hover-color);
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(26, 42, 108, 0.4);
-            }
-
-            .stats-grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 1rem;
-            }
-
-            .stat-box {
-                background: var(--card-bg);
-                padding: 1rem;
-                border-radius: 10px;
-                text-align: center;
-                transition: all 0.3s ease;
-                border: 1px solid var(--card-border);
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            }
-
-            .stat-box:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-                background: rgba(255, 255, 255, 0.15);
-            }
-
-            .stat-icon {
-                font-size: 1.5rem;
-                margin-bottom: 0.5rem;
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            }
-
-            .stat-value {
-                font-size: 1.8rem;
-                font-weight: bold;
-                color: #fff;
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            }
-
-            .stat-label {
-                color: rgba(255, 255, 255, 0.9);
-                font-size: 0.9rem;
-            }
-
-            .upcoming-challenges {
-                background: var(--card-bg);
-                border-radius: 12px;
-                padding: 1.5rem;
-                border: 1px solid var(--card-border);
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            }
-
-            .challenge-list {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 1rem;
-                margin-top: 1rem;
-            }
-
-            .upcoming-challenge-card {
-                background: var(--card-bg);
-                border-radius: 10px;
-                padding: 1rem;
-                border: 1px solid var(--card-border);
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            }
-
-            .upcoming-challenge-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-                background: rgba(255, 255, 255, 0.15);
-            }
-
-            /* Animations */
-            @keyframes fadeInDown {
-                from {
-                    opacity: 0;
-                    transform: translateY(-20px);
+            <style>
+                :root {
+                    --primary-gradient: linear-gradient(135deg, #2c3e50, #3498db);
+                    --secondary-gradient: linear-gradient(135deg, #2c3e50, #2980b9);
+                    --card-bg: rgba(255, 255, 255, 0.1);
+                    --card-border: rgba(255, 255, 255, 0.2);
+                    --text-primary: #fff;
+                    --text-secondary: rgba(255, 255, 255, 0.8);
+                    --accent-color: #3498db;
+                    --hover-color: #2980b9;
+                    --success-color: #2ecc71;
+                    --danger-color: #e74c3c;
+                    --shadow-color: rgba(44, 62, 80, 0.2);
+                    --card-radius: 15px;
+                    --transition: all 0.3s ease;
                 }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
 
-            @keyframes bounce {
-                0%, 100% {
-                    transform: translateY(0);
+                body {
+                    background: var(--primary-gradient);
+                    color: var(--text-primary);
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    min-height: 100vh;
                 }
-                50% {
-                    transform: translateY(-10px);
-                }
-            }
 
-            /* Responsive Design */
-            @media (max-width: 768px) {
                 .container {
-                    padding: 1rem;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 2rem;
+                }
+
+                .header {
+                    text-align: center;
+                    margin-bottom: 3rem;
+                    animation: fadeInDown 1s ease-out;
                 }
 
                 .header h1 {
-                    font-size: 2rem;
+                    font-size: 3rem;
+                    margin-bottom: 1rem;
+                    background: linear-gradient(to right, #00b4db, #0083b0);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    text-shadow: 0 2px 10px rgba(0,0,0,0.1);
                 }
 
                 .card {
+                    background: var(--card-bg);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid var(--card-border);
+                    border-radius: var(--card-radius);
+                    padding: 2rem;
+                    margin-bottom: 2rem;
+                    box-shadow: 0 8px 32px var(--shadow-color);
+                    transition: var(--transition);
+                }
+
+                .card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+                }
+
+                .card h3 {
+                    font-size: 1.8rem;
+                    margin-bottom: 1.5rem;
+                    color: var(--text-primary);
+                    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                }
+
+                /* AI Coach Section */
+                .ai-coach {
+                    text-align: center;
+                    background: var(--secondary-gradient);
+                }
+
+                .coach-avatar {
+                    font-size: 4rem;
+                    margin-bottom: 1rem;
+                    animation: bounce 2s infinite;
+                    text-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                }
+
+                /* Workout Section */
+                .workout-section {
+                    margin-top: 3rem;
+                    background: var(--secondary-gradient);
+                }
+
+                .workout-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 1.5rem;
+                }
+
+                .workout-card {
+                    background: var(--card-bg);
+                    border-radius: var(--card-radius);
                     padding: 1.5rem;
+                    text-align: center;
+                    cursor: pointer;
+                    transition: var(--transition);
+                    border: 1px solid var(--card-border);
+                }
+
+                .workout-card:hover {
+                    transform: translateY(-5px);
+                    background: var(--secondary-gradient);
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                }
+
+                /* Timer Section */
+                .timer-container {
+                    text-align: center;
+                    padding: 2rem;
+                    background: var(--secondary-gradient);
+                }
+
+                .timer {
+                    font-size: 4rem;
+                    font-weight: bold;
+                    margin: 1rem 0;
+                    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                    background: linear-gradient(to right, #00b4db, #0083b0);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                }
+
+                .timer-mode {
+                    font-size: 1.2rem;
+                    color: var(--text-secondary);
+                    margin-bottom: 1rem;
                 }
 
                 .control-buttons {
-                    flex-direction: column;
+                    display: flex;
+                    gap: 1rem;
+                    justify-content: center;
+                    margin: 1.5rem 0;
+                }
+
+                .control-btn {
+                    padding: 0.8rem 1.5rem;
+                    border: none;
+                    border-radius: 8px;
+                    background: var(--accent-color);
+                    color: var(--text-primary);
+                    cursor: pointer;
+                    transition: var(--transition);
+                    font-size: 1rem;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                }
+
+                .control-btn:hover {
+                    background: var(--hover-color);
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+                }
+
+                /* Progress Bars */
+                .progress-bar {
+                    background: var(--accent-color);
+                    border-radius: 10px;
+                    height: 10px;
+                    overflow: hidden;
+                    margin: 1rem 0;
+                    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+                }
+
+                .progress-fill {
+                    background: var(--success-color);
+                    height: 100%;
+                    transition: width 0.3s ease;
+                }
+
+                /* Nutrition Section */
+                .nutrition-section {
+                    background: var(--secondary-gradient);
                 }
 
                 .nutrition-tabs {
+                    display: flex;
+                    gap: 1rem;
+                    margin-bottom: 1.5rem;
+                }
+
+                .nutrition-tab {
+                    padding: 0.8rem 1.5rem;
+                    border: none;
+                    border-radius: 8px;
+                    background: var(--card-bg);
+                    color: var(--text-primary);
+                    cursor: pointer;
+                    transition: var(--transition);
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                }
+
+                .nutrition-tab.active {
+                    background: var(--accent-color);
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                }
+
+                .nutrition-tab:hover {
+                    background: var(--hover-color);
+                    transform: translateY(-2px);
+                }
+
+                /* Challenge System Specific Styles */
+                .challenge-system {
+                    background: var(--primary-gradient);
+                    color: white;
+                    padding: 2rem;
+                    border-radius: 15px;
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                }
+
+                .challenge-container {
+                    display: flex;
                     flex-direction: column;
+                    gap: 2rem;
                 }
 
                 .challenge-grid {
-                    grid-template-columns: 1fr;
+                    display: grid;
+                    grid-template-columns: 1.5fr 1fr;
+                    gap: 2rem;
+                }
+
+                .challenge-card {
+                    background: var(--card-bg);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid var(--card-border);
+                    transition: transform 0.3s ease;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                }
+
+                .challenge-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+                }
+
+                .challenge-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 1rem;
+                }
+
+                .challenge-title {
+                    font-size: 1.5rem;
+                    font-weight: bold;
+                    color: #fff;
+                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                }
+
+                .challenge-badge {
+                    background: var(--danger-color);
+                    padding: 0.3rem 0.8rem;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    font-weight: bold;
+                    box-shadow: 0 4px 15px rgba(26, 42, 108, 0.3);
+                }
+
+                .challenge-description {
+                    color: rgba(255, 255, 255, 0.9);
+                    margin-bottom: 1.5rem;
+                }
+
+                .challenge-rewards {
+                    display: flex;
+                    gap: 1rem;
+                    margin-bottom: 1.5rem;
+                }
+
+                .reward-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    background: var(--card-bg);
+                    padding: 0.5rem 1rem;
+                    border-radius: 20px;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                    border: 1px solid var(--card-border);
+                }
+
+                .reward-icon {
+                    font-size: 1.2rem;
+                }
+
+                .challenge-btn {
+                    width: 100%;
+                    padding: 1rem;
+                    font-size: 1.1rem;
+                    background: var(--success-color);
+                    border: none;
+                    border-radius: 8px;
+                    color: white;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 15px rgba(26, 42, 108, 0.3);
+                }
+
+                .challenge-btn:hover {
+                    background: var(--hover-color);
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(26, 42, 108, 0.4);
                 }
 
                 .stats-grid {
-                    grid-template-columns: repeat(2, 1fr);
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 1rem;
                 }
-            }
-        </style>
 
-        <div class="workout-section">
-            <h3>🏃‍♀️ Available Workouts</h3>
-            <div class="workout-grid">
-                <div class="workout-card" onclick="selectWorkout('cardio')">
-                    <h4>💓 Cardio Blast</h4>
-                    <p>High-intensity cardio workout</p>
-                    <small>Duration: 20 minutes</small>
-                </div>
-                <div class="workout-card" onclick="selectWorkout('strength')">
-                    <h4>💪 Strength Training</h4>
-                    <p>Build muscle and strength</p>
-                    <small>Duration: 45 minutes</small>
-                </div>
-                <div class="workout-card" onclick="selectWorkout('yoga')">
-                    <h4>🧘‍♀️ Yoga Flow</h4>
-                    <p>Flexibility and mindfulness</p>
-                    <small>Duration: 30 minutes</small>
-                </div>
-                <div class="workout-card" onclick="selectWorkout('hiit')">
-                    <h4>🔥 HIIT Training</h4>
-                    <p>Maximum calorie burn</p>
-                    <small>Duration: 25 minutes</small>
+                .stat-box {
+                    background: var(--card-bg);
+                    padding: 1rem;
+                    border-radius: 10px;
+                    text-align: center;
+                    transition: all 0.3s ease;
+                    border: 1px solid var(--card-border);
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                }
+
+                .stat-box:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+                    background: rgba(255, 255, 255, 0.15);
+                }
+
+                .stat-icon {
+                    font-size: 1.5rem;
+                    margin-bottom: 0.5rem;
+                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                }
+
+                .stat-value {
+                    font-size: 1.8rem;
+                    font-weight: bold;
+                    color: #fff;
+                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                }
+
+                .stat-label {
+                    color: rgba(255, 255, 255, 0.9);
+                    font-size: 0.9rem;
+                }
+
+                .upcoming-challenges {
+                    background: var(--card-bg);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    border: 1px solid var(--card-border);
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                }
+
+                .challenge-list {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: 1rem;
+                    margin-top: 1rem;
+                }
+
+                .upcoming-challenge-card {
+                    background: var(--card-bg);
+                    border-radius: 10px;
+                    padding: 1rem;
+                    border: 1px solid var(--card-border);
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                }
+
+                .upcoming-challenge-card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+                    background: rgba(255, 255, 255, 0.15);
+                }
+
+                /* Animations */
+                @keyframes fadeInDown {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+
+                @keyframes bounce {
+                    0%, 100% {
+                        transform: translateY(0);
+                    }
+                    50% {
+                        transform: translateY(-10px);
+                    }
+                }
+
+                /* Responsive Design */
+                @media (max-width: 768px) {
+                    .container {
+                        padding: 1rem;
+                    }
+
+                    .header h1 {
+                        font-size: 2rem;
+                    }
+
+                    .card {
+                        padding: 1.5rem;
+                    }
+
+                    .control-buttons {
+                        flex-direction: column;
+                    }
+
+                    .nutrition-tabs {
+                        flex-direction: column;
+                    }
+
+                    .challenge-grid {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .stats-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+                }
+            </style>
+
+            <div class="workout-section">
+                <h3>🏃‍♀️ Available Workouts</h3>
+                <div class="workout-grid">
+                    <div class="workout-card" onclick="selectWorkout('cardio')">
+                        <h4>💓 Cardio Blast</h4>
+                        <p>High-intensity cardio workout</p>
+                        <small>Duration: 20 minutes</small>
+                    </div>
+                    <div class="workout-card" onclick="selectWorkout('strength')">
+                        <h4>💪 Strength Training</h4>
+                        <p>Build muscle and strength</p>
+                        <small>Duration: 45 minutes</small>
+                    </div>
+                    <div class="workout-card" onclick="selectWorkout('yoga')">
+                        <h4>🧘‍♀️ Yoga Flow</h4>
+                        <p>Flexibility and mindfulness</p>
+                        <small>Duration: 30 minutes</small>
+                    </div>
+                    <div class="workout-card" onclick="selectWorkout('hiit')">
+                        <h4>🔥 HIIT Training</h4>
+                        <p>Maximum calorie burn</p>
+                        <small>Duration: 25 minutes</small>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="auth.js"></script>
     <script src="data.js"></script>
     <script src="app.js"></script>
 </body>
