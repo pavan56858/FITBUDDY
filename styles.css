@@ -129,16 +129,60 @@ body {
 }
 
 .exercise-list {
-    text-align: left;
-    margin-top: 15px;
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .exercise-item {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 10px 15px;
-    margin: 5px 0;
-    border-radius: 10px;
-    border-left: 4px solid #feca57;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.exercise-item:hover {
+    transform: translateX(5px);
+    background: #e9ecef;
+}
+
+.exercise-name {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.exercise-details {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.workout-status {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.workout-status.in-progress {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.workout-status.completed {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.next-workout-time {
+    margin-top: 10px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.9em;
 }
 
 .progress-bar {
@@ -383,4 +427,277 @@ body {
     .tips-container {
         grid-template-columns: 1fr;
     }
+}
+
+/* Auth Forms Styles */
+.auth-section {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.auth-form {
+    text-align: center;
+}
+
+.auth-form h3 {
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.auth-form .control-btn {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.auth-form p {
+    margin-top: 1rem;
+    color: var(--text-secondary);
+}
+
+.auth-form a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.auth-form a:hover {
+    text-decoration: underline;
+}
+
+/* Auth Message Styles */
+.auth-message {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.auth-message.error {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+.auth-message.success {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+    border: 1px solid rgba(46, 204, 113, 0.2);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Workout Controls Styles */
+.workout-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.success-btn {
+    background: var(--success-color);
+    color: white;
+}
+
+.success-btn:hover {
+    background: #27ae60;
+}
+
+.workout-status {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+    display: none;
+}
+
+.workout-status.completed {
+    display: block;
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+    border: 1px solid rgba(46, 204, 113, 0.2);
+}
+
+.workout-status.in-progress {
+    display: block;
+    background-color: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    border: 1px solid rgba(52, 152, 219, 0.2);
+}
+
+/* Workout Plan Selection Styles */
+.workout-plan-selection {
+    margin: 15px 0;
+}
+
+.plan-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.plan-btn {
+    padding: 12px;
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 1rem;
+}
+
+.plan-btn:hover {
+    background: var(--accent-color);
+    transform: translateY(-2px);
+}
+
+.plan-btn.selected {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.plan-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.next-workout-time {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    text-align: center;
+    font-size: 14px;
+    display: none;
+}
+
+.next-workout-time.active {
+    display: block;
+}
+
+/* Workout Selection Styles */
+.workout-selection {
+    text-align: center;
+    padding: 20px;
+}
+
+.workout-selection h4 {
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.plan-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.plan-btn {
+    padding: 15px;
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 1.1rem;
+}
+
+.plan-btn:hover {
+    background: var(--accent-color);
+    transform: translateY(-2px);
+}
+
+.plan-btn.selected {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.plan-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.workout-details {
+    padding: 20px;
+}
+
+.workout-status {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+    display: none;
+}
+
+.workout-status.completed {
+    display: block;
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+    border: 1px solid rgba(46, 204, 113, 0.2);
+}
+
+.workout-status.in-progress {
+    display: block;
+    background-color: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    border: 1px solid rgba(52, 152, 219, 0.2);
+}
+
+.next-workout-time {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    text-align: center;
+    font-size: 14px;
+    display: none;
+}
+
+.next-workout-time.active {
+    display: block;
+}
+
+.exercise-list {
+    margin: 20px 0;
+}
+
+.exercise-item {
+    padding: 10px;
+    margin: 5px 0;
+    background: var(--card-bg);
+    border-radius: var(--card-radius);
+    border: 1px solid var(--card-border);
 } 
