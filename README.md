@@ -115,10 +115,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
 - Icons and emojis from various sources
@@ -126,12 +122,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Web Speech API documentation
 - Modern CSS techniques and best practices
 
-## 📞 Support
-
-For support, please:
-1. Check the existing issues
-2. Create a new issue if needed
-3. Contact the maintainers
 
 ## 🔄 Updates
 
