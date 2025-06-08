@@ -8,6 +8,51 @@ let totalChallengeTime = 0;
 let recognition;
 let synthesis = window.speechSynthesis;
 
+// Workout plan definitions
+const workoutPlans = {
+    strength: {
+        name: 'Strength Training',
+        exercises: [
+            { name: 'Push-ups', sets: 3, reps: 12 },
+            { name: 'Squats', sets: 3, reps: 15 },
+            { name: 'Plank', sets: 3, duration: '30 seconds' },
+            { name: 'Dumbbell Rows', sets: 3, reps: 12 }
+        ]
+    },
+    cardio: {
+        name: 'Cardio Blast',
+        exercises: [
+            { name: 'Jumping Jacks', sets: 3, duration: '1 minute' },
+            { name: 'Mountain Climbers', sets: 3, duration: '45 seconds' },
+            { name: 'High Knees', sets: 3, duration: '1 minute' },
+            { name: 'Burpees', sets: 3, reps: 10 }
+        ]
+    },
+    yoga: {
+        name: 'Yoga Flow',
+        exercises: [
+            { name: 'Sun Salutations', sets: 3, duration: '2 minutes' },
+            { name: 'Warrior Poses', sets: 2, duration: '1 minute each' },
+            { name: 'Tree Pose', sets: 2, duration: '30 seconds each side' },
+            { name: 'Child\'s Pose', sets: 1, duration: '2 minutes' }
+        ]
+    },
+    hiit: {
+        name: 'HIIT Workout',
+        exercises: [
+            { name: 'Sprint in Place', sets: 4, duration: '30 seconds' },
+            { name: 'Rest', sets: 4, duration: '15 seconds' },
+            { name: 'Jump Squats', sets: 4, duration: '30 seconds' },
+            { name: 'Rest', sets: 4, duration: '15 seconds' }
+        ]
+    }
+};
+
+let currentWorkoutPlan = 'strength';
+let workoutTimer = null;
+let workoutStartTime = null;
+let workoutDuration = 0;
+
 // Initialize Speech Recognition
 if ('webkitSpeechRecognition' in window) {
     recognition = new webkitSpeechRecognition();
@@ -100,7 +145,7 @@ function startExerciseTimer() {
         const exerciseTime = getExerciseTime(exercise);
         
         // Update timer mode display
-        document.getElementById('timerMode').textContent = `Current: ${exercise}`;
+        document.getElementById('timerMode').textContent = `Current: ${exercise.name}`;
         
         // Calculate total challenge time if not already set
         if (totalChallengeTime === 0) {
@@ -287,33 +332,212 @@ function processVoiceCommand(command) {
 }
 
 // Workout functions
-function startWorkout() {
-    const currentWorkout = document.getElementById('todayWorkout');
-    currentWorkout.style.background = 'linear-gradient(45deg, #ff6b6b, #feca57)';
-    speakText("Alright! Let's start your workout! Remember to maintain proper form and listen to your body. You've got this!");
-    startTimer();
-    
-    // Update stats
-    const workoutsCompleted = document.getElementById('workoutsCompleted');
-    workoutsCompleted.textContent = parseInt(workoutsCompleted.textContent) + 1;
-    
-    addMessageToChat("Workout started! Remember to stay hydrated and push through! 💪", 'ai');
+function selectWorkoutPlan(plan) {
+    if (!canStartNewWorkout()) {
+        return;
+    }
+
+    currentWorkoutPlan = plan;
+    const workoutSelection = document.getElementById('workoutSelection');
+    const workoutDetails = document.getElementById('workoutDetails');
+    const selectedWorkoutName = document.getElementById('selectedWorkoutName');
+    const workoutExercises = document.getElementById('workoutExercises');
+
+    // Update selected workout name
+    selectedWorkoutName.textContent = workoutPlans[plan].name;
+
+    // Clear previous exercises
+    workoutExercises.innerHTML = '';
+
+    // Add new exercises
+    workoutPlans[plan].exercises.forEach(exercise => {
+        const exerciseElement = document.createElement('div');
+        exerciseElement.className = 'exercise-item';
+        exerciseElement.innerHTML = `
+            <span class="exercise-name">${exercise.name}</span>
+            <span class="exercise-details">
+                ${exercise.sets} sets
+                ${exercise.reps ? `× ${exercise.reps} reps` : ''}
+                ${exercise.duration ? `(${exercise.duration})` : ''}
+            </span>
+        `;
+        workoutExercises.appendChild(exerciseElement);
+    });
+
+    // Show workout details
+    workoutSelection.style.display = 'none';
+    workoutDetails.style.display = 'block';
+
+    // Reset workout status
+    document.getElementById('workoutStatus').textContent = '';
+    document.getElementById('nextWorkoutTime').textContent = '';
+    document.getElementById('startWorkoutBtn').style.display = 'block';
+    document.getElementById('completeWorkoutBtn').style.display = 'none';
 }
 
-function selectWorkout(type) {
-    const workout = workoutData[type];
-    const todayWorkout = document.getElementById('todayWorkout');
+function canStartNewWorkout() {
+    const user = auth.getCurrentUser();
+    if (!user) return false;
+
+    if (!user.lastWorkoutTime) return true;
+
+    const lastWorkout = new Date(user.lastWorkoutTime);
+    const now = new Date();
+    const hoursSinceLastWorkout = (now - lastWorkout) / (1000 * 60 * 60);
+
+    if (hoursSinceLastWorkout < 24) {
+        alert('You can start a new workout after 24 hours from your last workout');
+        return false;
+    }
+
+    return true;
+}
+
+function showNextWorkoutTime() {
+    const user = auth.getCurrentUser();
+    if (!user || !user.lastWorkoutTime) return;
+
+    const lastWorkout = new Date(user.lastWorkoutTime);
+    const nextWorkout = new Date(lastWorkout.getTime() + (24 * 60 * 60 * 1000));
+    const now = new Date();
+
+    if (nextWorkout > now) {
+        const timeLeft = nextWorkout - now;
+        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        
+        document.getElementById('nextWorkoutTime').textContent = 
+            `Next workout available in ${hours}h ${minutes}m`;
+    }
+}
+
+function startWorkout() {
+    if (!auth.getCurrentUser()) {
+        alert('Please log in to start a workout');
+        return;
+    }
+
+    if (!canStartNewWorkout()) {
+        return;
+    }
+
+    workoutStartTime = new Date();
+    workoutDuration = 0;
     
-    todayWorkout.innerHTML = `
-        <h4>${workout.name}</h4>
-        <div class="exercise-list">
-            ${workout.exercises.map(exercise => `<div class="exercise-item">${exercise}</div>`).join('')}
-        </div>
-        <button class="control-btn" onclick="startWorkout()">Start Workout</button>
-    `;
+    // Start timer
+    workoutTimer = setInterval(() => {
+        workoutDuration++;
+        const minutes = Math.floor(workoutDuration / 60);
+        const seconds = workoutDuration % 60;
+        document.getElementById('workoutStatus').textContent = 
+            `Workout in progress... ${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }, 1000);
+
+    document.getElementById('startWorkoutBtn').style.display = 'none';
+    document.getElementById('completeWorkoutBtn').style.display = 'block';
+    document.getElementById('workoutStatus').className = 'workout-status in-progress';
+}
+
+function completeWorkout() {
+    if (!workoutStartTime) return;
+
+    const user = auth.getCurrentUser();
+    if (!user) return;
+
+    // Stop the timer
+    if (workoutTimer) {
+        clearInterval(workoutTimer);
+        workoutTimer = null;
+    }
+
+    const endTime = new Date();
+    const duration = Math.floor((endTime - workoutStartTime) / 1000); // Duration in seconds
+
+    // Initialize user progress if it doesn't exist
+    if (typeof user.completedWorkouts === 'undefined') user.completedWorkouts = 0;
+    if (typeof user.points === 'undefined') user.points = 0;
+    if (typeof user.streak === 'undefined') user.streak = 0;
+
+    // Update user progress
+    user.completedWorkouts += 1;
+    user.points += 10;
+    user.lastWorkoutTime = endTime.toISOString();
+    user.rank = Math.max(1, 100000 - user.points);
+
+    // Update streak
+    const lastWorkout = user.lastWorkoutTime ? new Date(user.lastWorkoutTime) : null;
+    const today = new Date();
+    if (!lastWorkout || (today - lastWorkout) / (1000 * 60 * 60 * 24) > 1) {
+        user.streak = 1;
+    } else {
+        user.streak += 1;
+    }
+
+    // Update weekly progress
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+    const weekKey = weekStart.toISOString().split('T')[0];
+    user.weeklyProgress = user.weeklyProgress || {};
+    user.weeklyProgress[weekKey] = (user.weeklyProgress[weekKey] || 0) + 1;
+
+    // Save user data
+    auth.updateUser(user);
+
+    // Immediately update the progress counters
+    document.getElementById('workoutsCompleted').textContent = user.completedWorkouts;
+    document.getElementById('caloriesBurned').textContent = (user.completedWorkouts * 300).toLocaleString();
+    document.getElementById('streakDays').textContent = user.streak;
+
+    // Update weekly progress bar
+    const weeklyWorkouts = user.weeklyProgress[weekKey] || 0;
+    const progress = (weeklyWorkouts / 5) * 100;
+    document.getElementById('weeklyProgress').style.width = `${Math.min(progress, 100)}%`;
+
+    // Update UI
+    document.getElementById('workoutStatus').textContent = 'Workout completed!';
+    document.getElementById('workoutStatus').className = 'workout-status completed';
+    document.getElementById('startWorkoutBtn').style.display = 'block';
+    document.getElementById('completeWorkoutBtn').style.display = 'none';
     
-    speakText(`Great choice! I've loaded the ${workout.name} workout for you. Ready to get started?`);
-    addMessageToChat(`${workout.name} workout selected! This is going to be an amazing session! 🚀`, 'ai');
+    showNextWorkoutTime();
+
+    // Reset workout state
+    workoutStartTime = null;
+    workoutDuration = 0;
+
+    // Show completion message
+    alert(`Workout completed! You've earned 10 points.\nNext workout available in 24 hours.`);
+
+    // Reset to workout selection after 3 seconds
+    setTimeout(() => {
+        document.getElementById('workoutDetails').style.display = 'none';
+        document.getElementById('workoutSelection').style.display = 'block';
+        document.getElementById('workoutStatus').textContent = '';
+    }, 3000);
+}
+
+// Function to update user progress display
+function updateUserProgress() {
+    const user = auth.getCurrentUser();
+    if (!user) return;
+
+    // Initialize counters if they don't exist
+    if (typeof user.completedWorkouts === 'undefined') user.completedWorkouts = 0;
+    if (typeof user.streak === 'undefined') user.streak = 0;
+
+    // Update stats
+    document.getElementById('workoutsCompleted').textContent = user.completedWorkouts;
+    document.getElementById('caloriesBurned').textContent = (user.completedWorkouts * 300).toLocaleString();
+    document.getElementById('streakDays').textContent = user.streak;
+
+    // Update weekly progress
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+    const weekKey = weekStart.toISOString().split('T')[0];
+    const weeklyWorkouts = user.weeklyProgress?.[weekKey] || 0;
+    const progress = (weeklyWorkouts / 5) * 100;
+    document.getElementById('weeklyProgress').style.width = `${Math.min(progress, 100)}%`;
 }
 
 // Challenge System Functions
@@ -333,7 +557,7 @@ function startChallenge() {
         <div class="exercise-list">
             ${currentChallenge.exercises.map((exercise, index) => 
                 `<div class="exercise-item ${index === 0 ? 'active' : ''}" id="exercise-${index}">
-                    ${exercise}
+                    ${exercise.name}
                 </div>`
             ).join('')}
         </div>
@@ -471,7 +695,164 @@ function initializeApp() {
         const randomMessage = messages[Math.floor(Math.random() * messages.length)];
         document.getElementById('coachMessage').textContent = randomMessage;
     }, 300000); // Every 5 minutes
+
+    // Initialize progress display
+    updateUserProgress();
 }
 
 // Start the app
-initializeApp(); 
+initializeApp();
+
+// Auth handling functions
+function toggleAuthForms() {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
+    registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
+    
+    // Clear any existing messages when switching forms
+    clearAuthMessages();
+}
+
+function clearAuthMessages() {
+    const messages = document.querySelectorAll('.auth-message');
+    messages.forEach(msg => msg.remove());
+}
+
+function showAuthMessage(formId, message, isError = false) {
+    clearAuthMessages();
+    const form = document.getElementById(formId);
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `auth-message ${isError ? 'error' : 'success'}`;
+    messageDiv.textContent = message;
+    form.appendChild(messageDiv);
+    
+    // Remove message after 3 seconds
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+
+function checkUsernameAvailability() {
+    const usernameInput = document.getElementById('registerUsername');
+    const username = usernameInput.value.trim();
+    
+    if (username.length < 3) {
+        showAuthMessage('registerForm', 'Username must be at least 3 characters long', true);
+        return;
+    }
+    
+    if (auth.isUsernameAvailable(username)) {
+        showAuthMessage('registerForm', 'Username is available! ✅', false);
+    } else {
+        showAuthMessage('registerForm', 'Username is already taken ❌', true);
+    }
+}
+
+function handleLogin() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    
+    if (!username || !password) {
+        showAuthMessage('loginForm', 'Please enter both username and password', true);
+        return;
+    }
+    
+    const result = auth.login(username, password);
+    if (result.success) {
+        showMainContent();
+        updateUserProgress();
+        initializeApp();
+    } else {
+        showAuthMessage('loginForm', result.message, true);
+    }
+}
+
+function handleRegister() {
+    const username = document.getElementById('registerUsername').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    
+    if (!username || !password) {
+        showAuthMessage('registerForm', 'Please enter both username and password', true);
+        return;
+    }
+    
+    if (username.length < 3) {
+        showAuthMessage('registerForm', 'Username must be at least 3 characters long', true);
+        return;
+    }
+    
+    if (!auth.isUsernameAvailable(username)) {
+        showAuthMessage('registerForm', 'Username is already taken', true);
+        return;
+    }
+    
+    const result = auth.register(username, password);
+    if (result.success) {
+        // Automatically log in after registration
+        const loginResult = auth.login(username, password);
+        if (loginResult.success) {
+            showMainContent();
+            updateUserProgress();
+            initializeApp();
+        }
+    } else {
+        showAuthMessage('registerForm', result.message, true);
+    }
+}
+
+function handleLogout() {
+    auth.logout();
+    showAuthForms();
+}
+
+function showMainContent() {
+    document.getElementById('authForms').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+    document.getElementById('logoutBtn').style.display = 'block';
+    // Scroll to top of the page
+    window.scrollTo(0, 0);
+}
+
+function showAuthForms() {
+    document.getElementById('authForms').style.display = 'block';
+    document.getElementById('mainContent').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'none';
+    // Clear form fields
+    document.getElementById('loginUsername').value = '';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('registerUsername').value = '';
+    document.getElementById('registerPassword').value = '';
+}
+
+function updateUserProgress() {
+    const user = auth.getCurrentUser();
+    if (user) {
+        document.getElementById('totalPoints').textContent = user.progress.points;
+        document.getElementById('rank').textContent = '#' + user.progress.rank;
+        document.getElementById('userGreeting').textContent = user.username;
+    }
+}
+
+// Check if user is already logged in
+function checkAuth() {
+    const user = auth.getCurrentUser();
+    if (user) {
+        showMainContent();
+        updateUserProgress();
+        initializeApp();
+    } else {
+        showAuthForms();
+    }
+}
+
+// Initialize auth check when page loads
+document.addEventListener('DOMContentLoaded', checkAuth);
+
+// Initialize workout display when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    const user = auth.getCurrentUser();
+    if (user) {
+        showNextWorkoutTime();
+    }
+}); 
