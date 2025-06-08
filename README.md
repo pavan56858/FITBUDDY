@@ -46,7 +46,7 @@ FitBuddy is an interactive web application that serves as your personal AI fitne
 ### Installation
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/fitbuddy.git
+git clone https://github.com/pavan56858/fitbuddy.git
 ```
 
 2. Navigate to the project directory:
